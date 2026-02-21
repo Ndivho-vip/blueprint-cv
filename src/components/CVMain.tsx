@@ -1,4 +1,5 @@
 import { Briefcase, FolderOpen, Award } from "lucide-react";
+import { cvData } from "@/data/cvData";
 
 const SectionHeader = ({ icon: Icon, title }: { icon: React.ElementType; title: string }) => (
   <div className="flex items-center gap-2 mb-2 border-b border-border pb-1">
@@ -10,17 +11,9 @@ const SectionHeader = ({ icon: Icon, title }: { icon: React.ElementType; title: 
 );
 
 const TimelineItem = ({
-  title,
-  org,
-  period,
-  bullets,
-  highlight,
+  title, org, period, bullets, highlight,
 }: {
-  title: string;
-  org: string;
-  period: string;
-  bullets: string[];
-  highlight?: boolean;
+  title: string; org: string; period: string; bullets: string[]; highlight?: boolean;
 }) => (
   <div className="mb-2.5 relative pl-3 border-l-2 border-primary/20 last:mb-0">
     <div className="absolute left-[-5px] top-[3px] w-2 h-2 rounded-full bg-primary" />
@@ -35,14 +28,8 @@ const TimelineItem = ({
           <span className="text-primary mt-[2px] shrink-0">›</span>
           <span>
             {highlight && b.includes("R1,000,000") ? (
-              <>
-                {b.split("R1,000,000")[0]}
-                <strong className="text-foreground font-bold">R1,000,000</strong>
-                {b.split("R1,000,000")[1]}
-              </>
-            ) : (
-              b
-            )}
+              <>{b.split("R1,000,000")[0]}<strong className="text-foreground font-bold">R1,000,000</strong>{b.split("R1,000,000")[1]}</>
+            ) : b}
           </span>
         </li>
       ))}
@@ -53,68 +40,24 @@ const TimelineItem = ({
 const CVMain = () => {
   return (
     <div className="px-5 py-5 bg-card h-full flex flex-col">
-      {/* Header */}
       <div className="mb-3">
-        <h1 className="font-oswald text-[28px] font-bold tracking-tight text-foreground leading-none">
-          NDIVHO MUDAU
-        </h1>
-        <p className="text-[11px] font-semibold text-primary mt-0.5 tracking-wide uppercase">
-          Hardware Technician & Software Developer
-        </p>
-        <p className="text-[8px] text-muted-foreground mt-1 italic leading-snug">
-          "Specializing in POS Solutions, Mobile Hardware Architecture, and Reverse Engineering."
-        </p>
+        <h1 className="font-oswald text-[28px] font-bold tracking-tight text-foreground leading-none">{cvData.name}</h1>
+        <p className="text-[11px] font-semibold text-primary mt-0.5 tracking-wide uppercase">{cvData.title}</p>
+        <p className="text-[8px] text-muted-foreground mt-1 italic leading-snug">"{cvData.tagline}"</p>
       </div>
 
-      {/* Professional Summary */}
       <div className="mb-3">
         <SectionHeader icon={FolderOpen} title="Professional Summary" />
-        <p className="text-[8.5px] text-muted-foreground leading-[1.5]">
-          Technically proficient Developer and Hardware Specialist with a proven track record in
-          diagnosing complex mobile/PC hardware faults and developing custom software solutions.
-          Founder of Geekaz Solutions, focusing on Point of Sale (POS) systems and administrative
-          dashboards. Blends hands-on engineering skills with software logic to build practical
-          business tools.
-        </p>
+        <p className="text-[8.5px] text-muted-foreground leading-[1.5]">{cvData.summary}</p>
       </div>
 
-      {/* Work Experience */}
       <div className="mb-3 flex-1">
         <SectionHeader icon={Briefcase} title="Work Experience" />
-
-        <TimelineItem
-          title="Founder & Lead Technician"
-          org="Geekaz Solutions"
-          period="2024 – Present"
-          bullets={[
-            "Developing custom Point of Sale (POS) software for local businesses, focusing on inventory management and UI efficiency.",
-            "Performing advanced hardware repairs, including bootloader unlocking, partition patching, and component-level fixes on Samsung and Dell devices.",
-          ]}
-        />
-
-        <TimelineItem
-          title="Robotics & Coding Assistant"
-          org="Ozias Davhana Secondary"
-          period="2023"
-          highlight
-          bullets={[
-            "Mentored a student team in building and programming autonomous robots.",
-            "Led the team to win a R1,000,000 voucher in a provincial school competition through strategic coding and design.",
-          ]}
-        />
-
-        <TimelineItem
-          title="Freelance ICT & Creative Assistant"
-          org="Self-Employed"
-          period="2022 – Present"
-          bullets={[
-            "Providing specialized technical support: OS cloning, driver troubleshooting, and network setup for community members.",
-            "Designed digital media and managed video editing workflows for local youth programs.",
-          ]}
-        />
+        {cvData.experience.map((exp) => (
+          <TimelineItem key={exp.title} {...exp} />
+        ))}
       </div>
 
-      {/* Footer line */}
       <div className="border-t border-border pt-1.5 flex items-center gap-1.5">
         <Award className="w-3 h-3 text-primary" />
         <span className="text-[7px] text-muted-foreground uppercase tracking-widest">
