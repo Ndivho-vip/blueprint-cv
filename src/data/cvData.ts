@@ -1,18 +1,36 @@
 export const cvData = {
-  name: "NDIVHO MUDAU",
-  title: "Hardware Technician & Software Developer",
+  name: "MUDAU NDIVHO",
+  title: "Founder & Lead Technician",
   tagline:
     "Specializing in POS Solutions, Mobile Hardware Architecture, and Reverse Engineering.",
 
   contact: {
-    phone: "079 888 9298",
+    phone: "+27798889298",
     email: "MRNDIVHO@GMAIL.COM",
-    location: "Makhado, Limpopo",
+    location: "Makhado, Limpopo, South Africa",
     website: "Geekaz Solutions",
   },
 
   summary:
-    "Technically proficient Developer and Hardware Specialist with a proven track record in diagnosing complex mobile/PC hardware faults and developing custom software solutions. Founder of Geekaz Solutions, focusing on Point of Sale (POS) systems and administrative dashboards. Blends hands-on engineering skills with software logic to build practical business tools.",
+    "IT Technician Software Developer & Office Administrator PROFESSIONAL PROFILE Reliable and technically skilled IT professional with a strong background in both software development and practical hardware repair. Founder of Geekaz Solutions, providing essential tech support to the local Elim and Makhado community. Proven ability to solve complex computer problems while also assisting with day-to-day office administration, document typing, and internet services.",
+
+  achievements: [
+    {
+      icon: "Trophy",
+      title: "Successful Business Venture",
+      description: "Founded and managed IT business",
+    },
+    {
+      icon: "Trophy",
+      title: "Robotics Competition Win",
+      description: "Led team to win R1,000,000 school competition prize.",
+    },
+    {
+      icon: "Trophy",
+      title: "Point Of Sale Success",
+      description: "Developed POS systems reducing inventory errors by 30%.",
+    },
+  ],
 
   hardSkills: [
     { label: "Hardware Repair (Component Level)", level: 95 },
@@ -28,16 +46,20 @@ export const cvData = {
     "Strategic Planning",
   ],
 
+  technicalSkills:
+    "Microsoft Office Suite: Word, Excel, PowerPoint · Digital Literacy · Internet Services · Troubleshooting Windows 10/11 · Virus Removal · Driver Installation · PC Repair · Mobile Phone Repair · Screen Replacement · Battery Changes · Phone Unlocking · Rooting · FRP Bypass · Firmware Flashing · Python · C++ · Graphic Design · Network Setup · Wi-Fi Configuration · Mobile Data Fixes",
+
   languages: [
     { name: "Tshivenda", level: "Native" },
     { name: "English", level: "Professional" },
   ],
 
   education: {
-    degree: "National Senior Certificate",
+    degree: "National Senior Certificate (Grade 12)",
     school: "Ozias Davhana Secondary School",
-    year: "2022",
-    focus: "Mathematical Literacy, Life Sciences, English.",
+    year: "01/2022 - 01/2022",
+    location: "Limpopo, South Africa",
+    focus: "Major Subjects: Tshivenda, English, Mathematical Literacy, History, Geography, Life Sciences.",
   },
 
   experience: [
@@ -45,28 +67,52 @@ export const cvData = {
       title: "Founder & Lead Technician",
       org: "Geekaz Solutions",
       period: "2024 – Present",
+      location: "Makhado",
       bullets: [
-        "Developing custom Point of Sale (POS) software for local businesses, focusing on inventory management and UI efficiency.",
-        "Performing advanced hardware repairs, including bootloader unlocking, partition patching, and component-level fixes on Samsung and Dell devices.",
+        "Running a local IT business providing hardware and software solutions",
+        "Developing Point of Sale (POS) systems to help local shops manage inventory",
+        "Repairing smartphones and computers for community members",
       ],
     },
     {
-      title: "Robotics & Coding Assistant",
-      org: "Ozias Davhana Secondary",
+      title: "Creative Assistant",
+      org: "Freelance Projects",
+      period: "2023 – Present",
+      location: "Limpopo",
+      bullets: [
+        "Designing professional posters and graphics for school and community events",
+        "Editing videos for local youth programs and social media",
+      ],
+    },
+    {
+      title: "Robotics Assistant",
+      org: "Ozias Davhana Secondary School",
+      period: "",
+      location: "",
+      highlight: true,
+      bullets: [],
+    },
+    {
+      title: "Digital Support",
+      org: "Self Employed",
+      period: "01/2022 - 12/2022",
+      location: "",
+      bullets: [
+        "Assisting elders and youth with setting up smartphones (WhatsApp, Banking Apps)",
+        "System Setup: helping neighbors set up new computers and printers",
+        "Education: Teaching people how to use the internet safely and access learning websites",
+      ],
+    },
+    {
+      title: "ICT & Community Helper",
+      org: "Local Community",
       period: "2023",
+      location: "",
       highlight: true,
       bullets: [
-        "Mentored a student team in building and programming autonomous robots.",
-        "Led the team to win a R1,000,000 voucher in a provincial school competition through strategic coding and design.",
-      ],
-    },
-    {
-      title: "Freelance ICT & Creative Assistant",
-      org: "Self-Employed",
-      period: "2022 – Present",
-      bullets: [
-        "Providing specialized technical support: OS cloning, driver troubleshooting, and network setup for community members.",
-        "Designed digital media and managed video editing workflows for local youth programs.",
+        "Mentored Grade 12 students in building and coding robots",
+        "Achievement: Led the team to win a R1,000,000 voucher in a school competition",
+        "ICT & Community Helper | Local Community",
       ],
     },
   ],
