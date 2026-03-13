@@ -1,26 +1,23 @@
 import { Phone, Mail, MapPin, Trophy } from "lucide-react";
-import { cvData } from "@/data/cvData";
+import { cvData as defaultCvData } from "@/data/cvData";
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   <div className="text-center mb-2 mt-4">
-    <h2 className="font-oswald text-[15px] font-bold text-foreground tracking-wide">
-      {children}
-    </h2>
+    <h2 className="font-oswald text-[15px] font-bold text-foreground tracking-wide">{children}</h2>
     <div className="h-[2px] bg-foreground/20 mt-1" />
   </div>
 );
 
-const MinimalTemplate = () => {
-  const { contact, achievements, education, experience, technicalSkills } = cvData;
+const MinimalTemplate = ({ formData }: { formData?: any }) => {
+  const d = formData || defaultCvData;
+  const contact = d.contact || { phone: d.phone, email: d.email, location: d.location, website: d.website };
+  const { achievements = [], education = {}, experience = [], technicalSkills = "" } = d;
 
   return (
     <div className="a4-page bg-card px-8 py-6 flex flex-col text-foreground">
-      {/* Header */}
       <div className="text-center mb-1">
-        <h1 className="font-oswald text-[28px] font-bold tracking-[0.15em] uppercase leading-none">
-          {cvData.name}
-        </h1>
-        <p className="text-[11px] text-muted-foreground mt-0.5">{cvData.title}</p>
+        <h1 className="font-oswald text-[28px] font-bold tracking-[0.15em] uppercase leading-none">{d.name}</h1>
+        <p className="text-[11px] text-muted-foreground mt-0.5">{d.title}</p>
         <div className="flex items-center justify-center gap-2 mt-1.5 text-[9px] text-muted-foreground">
           <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{contact.phone}</span>
           <span>•</span>
@@ -30,14 +27,12 @@ const MinimalTemplate = () => {
         </div>
       </div>
 
-      {/* Summary */}
       <SectionTitle>Summary</SectionTitle>
-      <p className="text-[8.5px] text-foreground/80 leading-[1.6] text-center">{cvData.summary}</p>
+      <p className="text-[8.5px] text-foreground/80 leading-[1.6] text-center">{d.summary}</p>
 
-      {/* Key Achievements */}
       <SectionTitle>Key Achievements</SectionTitle>
       <div className="grid grid-cols-3 gap-4 mt-1">
-        {achievements?.map((a) => (
+        {achievements.map((a: any) => (
           <div key={a.title} className="text-center">
             <div className="flex items-center justify-center gap-1 mb-0.5">
               <Trophy className="w-3.5 h-3.5 text-primary" />
@@ -48,10 +43,9 @@ const MinimalTemplate = () => {
         ))}
       </div>
 
-      {/* Experience */}
       <SectionTitle>Experience</SectionTitle>
       <div className="space-y-2.5 mt-1">
-        {experience.map((exp) => (
+        {experience.map((exp: any) => (
           <div key={exp.org + exp.title}>
             <div className="flex items-baseline justify-between">
               <h3 className="text-[11px] font-oswald text-foreground/80">{exp.org}</h3>
@@ -61,9 +55,9 @@ const MinimalTemplate = () => {
               <h4 className="text-[9px] font-bold text-foreground">{exp.title}</h4>
               <span className="text-[8px] text-muted-foreground">{exp.period || "Date period"}</span>
             </div>
-            {exp.bullets.length > 0 && (
+            {exp.bullets?.length > 0 && (
               <ul className="mt-0.5 space-y-0.5 pl-3">
-                {exp.bullets.map((b, i) => (
+                {exp.bullets.map((b: string, i: number) => (
                   <li key={i} className="text-[8px] text-foreground/70 leading-[1.5] list-disc">
                     {exp.highlight && b.includes("R1,000,000") ? (
                       <>{b.split("R1,000,000")[0]}<strong className="text-foreground font-bold">R1,000,000</strong>{b.split("R1,000,000")[1]}</>
@@ -76,7 +70,6 @@ const MinimalTemplate = () => {
         ))}
       </div>
 
-      {/* Education */}
       <SectionTitle>Education</SectionTitle>
       <div className="mt-1">
         <div className="flex items-baseline justify-between">
@@ -92,7 +85,6 @@ const MinimalTemplate = () => {
         </ul>
       </div>
 
-      {/* Skills */}
       <SectionTitle>Skills</SectionTitle>
       <div className="mt-1">
         <p className="text-[8px] font-semibold text-foreground mb-0.5">Technical & Hardware Repair:</p>
