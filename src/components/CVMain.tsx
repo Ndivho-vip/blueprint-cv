@@ -1,12 +1,10 @@
 import { Briefcase, FolderOpen, Award } from "lucide-react";
-import { cvData } from "@/data/cvData";
+import { cvData as defaultCvData } from "@/data/cvData";
 
 const SectionHeader = ({ icon: Icon, title }: { icon: React.ElementType; title: string }) => (
   <div className="flex items-center gap-2 mb-2 border-b border-border pb-1">
     <Icon className="w-3.5 h-3.5 text-primary" />
-    <h2 className="font-oswald text-[12px] font-bold uppercase tracking-[0.12em] text-foreground">
-      {title}
-    </h2>
+    <h2 className="font-oswald text-[12px] font-bold uppercase tracking-[0.12em] text-foreground">{title}</h2>
   </div>
 );
 
@@ -37,31 +35,33 @@ const TimelineItem = ({
   </div>
 );
 
-const CVMain = () => {
+const CVMain = ({ data }: { data?: any }) => {
+  const d = data || defaultCvData;
+
   return (
     <div className="px-5 py-5 bg-card h-full flex flex-col">
       <div className="mb-3">
-        <h1 className="font-oswald text-[28px] font-bold tracking-tight text-foreground leading-none">{cvData.name}</h1>
-        <p className="text-[11px] font-semibold text-primary mt-0.5 tracking-wide uppercase">{cvData.title}</p>
-        <p className="text-[8px] text-muted-foreground mt-1 italic leading-snug">"{cvData.tagline}"</p>
+        <h1 className="font-oswald text-[28px] font-bold tracking-tight text-foreground leading-none">{d.name}</h1>
+        <p className="text-[11px] font-semibold text-primary mt-0.5 tracking-wide uppercase">{d.title}</p>
+        <p className="text-[8px] text-muted-foreground mt-1 italic leading-snug">"{d.tagline}"</p>
       </div>
 
       <div className="mb-3">
         <SectionHeader icon={FolderOpen} title="Professional Summary" />
-        <p className="text-[8.5px] text-muted-foreground leading-[1.5]">{cvData.summary}</p>
+        <p className="text-[8.5px] text-muted-foreground leading-[1.5]">{d.summary}</p>
       </div>
 
       <div className="mb-3 flex-1">
         <SectionHeader icon={Briefcase} title="Work Experience" />
-        {cvData.experience.map((exp) => (
-          <TimelineItem key={exp.title} {...exp} />
+        {(d.experience || []).map((exp: any) => (
+          <TimelineItem key={exp.title + exp.org} {...exp} />
         ))}
       </div>
 
       <div className="border-t border-border pt-1.5 flex items-center gap-1.5">
         <Award className="w-3 h-3 text-primary" />
         <span className="text-[7px] text-muted-foreground uppercase tracking-widest">
-          Built with precision — Geekaz Solutions
+          Built with precision — {d.website || d.contact?.website || "Geekaz Solutions"}
         </span>
       </div>
     </div>

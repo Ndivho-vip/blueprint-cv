@@ -1,11 +1,11 @@
 import CVSidebar from "./CVSidebar";
 import CVMain from "./CVMain";
 
-const CV = () => {
+const CV = ({ formData }: { formData?: any }) => {
   return (
     <div className="a4-page grid grid-cols-[30%_70%] bg-card">
-      <CVSidebar />
-      <CVMain />
+      <CVSidebar data={formData} />
+      <CVMain data={formData} />
     </div>
   );
 };
