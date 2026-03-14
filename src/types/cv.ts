@@ -49,6 +49,22 @@ export const cvFormSchema = z.object({
   location: z.string().trim().min(1, "Location is required").max(100),
   website: z.string().max(100).optional(),
   summary: z.string().max(2000).optional(),
+
+  // SA Identity fields (all optional, toggled on/off)
+  idNumber: z.string().max(13).optional(),
+  gender: z.string().optional(),
+  dateOfBirth: z.string().optional(),
+  nationality: z.string().optional(),
+  maritalStatus: z.string().optional(),
+  driversLicense: z.string().optional(),
+  ethnicity: z.string().optional(),
+
+  // Toggle visibility for identity fields on CV
+  showIdentity: z.boolean().optional(),
+
+  // Hobbies & Interests
+  hobbies: z.array(z.string()).optional(),
+
   achievements: z.array(achievementSchema),
   hardSkills: z.array(hardSkillSchema),
   softSkills: z.array(z.string()),

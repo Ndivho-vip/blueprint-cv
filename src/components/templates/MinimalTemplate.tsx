@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, Trophy } from "lucide-react";
+import { Phone, Mail, MapPin, Trophy, IdCard, Heart } from "lucide-react";
 import { cvData as defaultCvData } from "@/data/cvData";
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
@@ -11,7 +11,17 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 const MinimalTemplate = ({ formData }: { formData?: any }) => {
   const d = formData || defaultCvData;
   const contact = d.contact || { phone: d.phone, email: d.email, location: d.location, website: d.website };
-  const { achievements = [], education = {}, experience = [], technicalSkills = "" } = d;
+  const { achievements = [], education = {}, experience = [], technicalSkills = "", hobbies = [] } = d;
+
+  const identityItems = d.showIdentity ? [
+    d.idNumber && { label: "ID", value: d.idNumber },
+    d.gender && { label: "Gender", value: d.gender },
+    d.dateOfBirth && { label: "DOB", value: d.dateOfBirth },
+    d.nationality && { label: "Nationality", value: d.nationality },
+    d.maritalStatus && { label: "Status", value: d.maritalStatus },
+    d.driversLicense && { label: "License", value: d.driversLicense },
+    d.ethnicity && { label: "Ethnicity", value: d.ethnicity },
+  ].filter(Boolean) : [];
 
   return (
     <div className="a4-page bg-card px-8 py-6 flex flex-col text-foreground">
@@ -26,6 +36,21 @@ const MinimalTemplate = ({ formData }: { formData?: any }) => {
           <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{contact.location}</span>
         </div>
       </div>
+
+      {/* Identity Details (SA CV style) */}
+      {identityItems.length > 0 && (
+        <>
+          <SectionTitle>Personal Details</SectionTitle>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-0.5 mt-1">
+            {identityItems.map((item: any) => (
+              <div key={item.label} className="flex justify-between text-[8.5px]">
+                <span className="text-muted-foreground font-medium">{item.label}:</span>
+                <span className="text-foreground">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       <SectionTitle>Summary</SectionTitle>
       <p className="text-[8.5px] text-foreground/80 leading-[1.6] text-center">{d.summary}</p>
@@ -90,6 +115,16 @@ const MinimalTemplate = ({ formData }: { formData?: any }) => {
         <p className="text-[8px] font-semibold text-foreground mb-0.5">Technical & Hardware Repair:</p>
         <p className="text-[8px] text-foreground/70 leading-[1.6]">{technicalSkills}</p>
       </div>
+
+      {/* Hobbies */}
+      {hobbies.length > 0 && (
+        <>
+          <SectionTitle>Hobbies & Interests</SectionTitle>
+          <p className="text-[8.5px] text-foreground/70 leading-[1.6] text-center mt-1">
+            {hobbies.join(" · ")}
+          </p>
+        </>
+      )}
     </div>
   );
 };

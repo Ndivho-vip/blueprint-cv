@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cvFormSchema, type CVFormData } from "@/types/cv";
 import { demoData } from "@/lib/demoData";
@@ -8,25 +8,50 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  HOBBY_SUGGESTIONS, SOFT_SKILL_SUGGESTIONS, HARD_SKILL_SUGGESTIONS,
+  LANGUAGE_SUGGESTIONS, RESPONSIBILITY_SUGGESTIONS,
+} from "@/lib/suggestions";
 import {
   User, Briefcase, Mail, Phone, MapPin, Globe, GraduationCap,
-  Plus, Trash2, Zap, Upload, ChevronDown, ChevronUp, Sparkles
+  Plus, Trash2, Zap, Upload, ChevronDown, ChevronUp, Sparkles,
+  IdCard, Heart, CalendarDays, Flag, Car, Users,
 } from "lucide-react";
+
+/** Clickable suggestion chip */
+const Chip = ({ label, active, onClick }: { label: string; active?: boolean; onClick: () => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+      active
+        ? "bg-primary text-primary-foreground border-primary"
+        : "bg-secondary/20 text-foreground border-border hover:bg-secondary/40"
+    }`}
+  >
+    {active ? "✓ " : "+ "}{label}
+  </button>
+);
 
 export default function IntakeForm() {
   const { setCvData } = useCVContext();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    personal: true, summary: false, experience: false, education: false,
-    skills: false, languages: false, achievements: false, references: false,
+    personal: true, identity: false, summary: false, experience: false, education: false,
+    skills: false, hobbies: false, languages: false, achievements: false, references: false,
   });
+  const [showIdentity, setShowIdentity] = useState(false);
 
   const {
-    register, handleSubmit, control, reset, formState: { errors },
+    register, handleSubmit, control, reset, watch, setValue, getValues, formState: { errors },
   } = useForm<CVFormData>({
     resolver: zodResolver(cvFormSchema),
     defaultValues: {
       name: "", title: "", tagline: "", phone: "", email: "", location: "", website: "",
       summary: "", technicalSkills: "",
+      idNumber: "", gender: "", dateOfBirth: "", nationality: "", maritalStatus: "",
+      driversLicense: "", ethnicity: "", showIdentity: false,
+      hobbies: [],
       achievements: [], hardSkills: [{ label: "", level: 70 }],
       softSkills: [""], languages: [{ name: "", level: "" }],
       education: { degree: "", school: "", year: "", location: "", focus: "" },
@@ -41,27 +66,64 @@ export default function IntakeForm() {
   const referenceFields = useFieldArray({ control, name: "references" });
   const languageFields = useFieldArray({ control, name: "languages" });
 
+  const currentSoftSkills = watch("softSkills") || [];
+  const currentHobbies = watch("hobbies") || [];
+
   const toggle = (key: string) =>
     setExpandedSections((p) => ({ ...p, [key]: !p[key] }));
 
+  const toggleSoftSkill = (skill: string) => {
+    const current = getValues("softSkills").filter(Boolean);
+    if (current.includes(skill)) {
+      setValue("softSkills", current.filter((s) => s !== skill));
+    } else {
+      setValue("softSkills", [...current, skill]);
+    }
+  };
+
+  const toggleHobby = (hobby: string) => {
+    const current = getValues("hobbies") || [];
+    if (current.includes(hobby)) {
+      setValue("hobbies", current.filter((h) => h !== hobby));
+    } else {
+      setValue("hobbies", [...current, hobby]);
+    }
+  };
+
+  const addHardSkill = (label: string) => {
+    const existing = getValues("hardSkills");
+    if (!existing.find((s) => s.label === label)) {
+      hardSkillFields.append({ label, level: 75 });
+    }
+  };
+
+  const addLanguage = (name: string) => {
+    const existing = getValues("languages");
+    if (!existing.find((l) => l.name === name)) {
+      languageFields.append({ name, level: "Conversational" });
+    }
+  };
+
   const onSubmit = (data: CVFormData) => {
-    // Filter out empty entries
     data.softSkills = data.softSkills.filter(Boolean);
+    data.hobbies = (data.hobbies || []).filter(Boolean);
     data.experience = data.experience.filter((e) => e.title || e.org);
     data.experience.forEach((e) => { e.bullets = e.bullets.filter(Boolean); });
     data.hardSkills = data.hardSkills.filter((s) => s.label);
     data.achievements = data.achievements.filter((a) => a.title);
     data.references = data.references.filter((r) => r.name);
     data.languages = data.languages.filter((l) => l.name);
+    data.showIdentity = showIdentity;
     setCvData(data);
   };
 
   const autofill = () => {
     reset(demoData);
+    setShowIdentity(true);
     setExpandedSections(Object.fromEntries(Object.keys(expandedSections).map((k) => [k, true])));
   };
 
-  const SectionHeader = ({ id, label, icon: Icon }: { id: string; label: string; icon: React.ElementType }) => (
+  const SectionHeader = ({ id, label, icon: Icon, badge }: { id: string; label: string; icon: React.ElementType; badge?: number }) => (
     <button
       type="button"
       onClick={() => toggle(id)}
@@ -70,6 +132,9 @@ export default function IntakeForm() {
       <span className="flex items-center gap-2 font-semibold text-foreground font-[Oswald]">
         <Icon className="w-5 h-5 text-primary" />
         {label}
+        {badge && badge > 0 && (
+          <span className="bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{badge}</span>
+        )}
       </span>
       {expandedSections[id] ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
     </button>
@@ -90,7 +155,7 @@ export default function IntakeForm() {
             Build Your Professional CV
           </h1>
           <p className="text-muted-foreground mt-2 text-sm md:text-base">
-            Fill in your details below. All required fields must be completed.
+            Fill in your details below. Click suggestions to add info fast — less typing, more skills!
           </p>
         </div>
 
@@ -164,6 +229,78 @@ export default function IntakeForm() {
             </div>
           )}
 
+          {/* === SA IDENTITY (TOGGLE) === */}
+          <SectionHeader id="identity" label="Identity Details (SA CV)" icon={IdCard} />
+          {expandedSections.identity && (
+            <div className="p-4 border border-border rounded-lg bg-card space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-md bg-secondary/10">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Show identity on CV</p>
+                  <p className="text-xs text-muted-foreground">Toggle ON to include these details on your printed CV</p>
+                </div>
+                <Switch checked={showIdentity} onCheckedChange={(v) => { setShowIdentity(v); setValue("showIdentity", v); }} />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs font-medium flex items-center gap-1"><IdCard className="w-3 h-3" /> SA ID Number</Label>
+                  <Input {...register("idNumber")} placeholder="13-digit ID number" maxLength={13} className="h-10 mt-1" />
+                </div>
+                <div>
+                  <Label className="text-xs font-medium flex items-center gap-1"><Users className="w-3 h-3" /> Gender</Label>
+                  <select {...register("gender")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1">
+                    <option value="">Select...</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Non-binary">Non-binary</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs font-medium flex items-center gap-1"><CalendarDays className="w-3 h-3" /> Date of Birth</Label>
+                  <Input {...register("dateOfBirth")} type="date" className="h-10 mt-1" />
+                </div>
+                <div>
+                  <Label className="text-xs font-medium flex items-center gap-1"><Flag className="w-3 h-3" /> Nationality</Label>
+                  <Input {...register("nationality")} placeholder="e.g. South African" className="h-10 mt-1" />
+                </div>
+                <div>
+                  <Label className="text-xs font-medium flex items-center gap-1"><Heart className="w-3 h-3" /> Marital Status</Label>
+                  <select {...register("maritalStatus")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1">
+                    <option value="">Select...</option>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Widowed">Widowed</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs font-medium flex items-center gap-1"><Car className="w-3 h-3" /> Driver's License</Label>
+                  <select {...register("driversLicense")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1">
+                    <option value="">None</option>
+                    <option value="Code A (Motorcycle)">Code A (Motorcycle)</option>
+                    <option value="Code B (Light Vehicle)">Code B (Light Vehicle)</option>
+                    <option value="Code C1 (Heavy Vehicle)">Code C1 (Heavy Vehicle)</option>
+                    <option value="Code C (Extra Heavy)">Code C (Extra Heavy)</option>
+                    <option value="Code EB (Articulated)">Code EB (Articulated)</option>
+                    <option value="Code EC1">Code EC1</option>
+                    <option value="Learner's License">Learner's License</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs font-medium">Ethnicity (optional, for EE purposes)</Label>
+                  <select {...register("ethnicity")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1">
+                    <option value="">Prefer not to say</option>
+                    <option value="Black">Black</option>
+                    <option value="Coloured">Coloured</option>
+                    <option value="Indian">Indian</option>
+                    <option value="White">White</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* === PROFESSIONAL SUMMARY === */}
           <SectionHeader id="summary" label="Professional Summary" icon={Briefcase} />
           {expandedSections.summary && (
@@ -216,6 +353,18 @@ export default function IntakeForm() {
                       placeholder="One responsibility per line..."
                       className="mt-1 min-h-[60px] text-sm"
                     />
+                    <p className="text-xs text-muted-foreground mt-1">💡 Quick add:</p>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {RESPONSIBILITY_SUGGESTIONS.slice(0, 6).map((r) => (
+                        <Chip key={r} label={r} onClick={() => {
+                          const current = getValues(`experience.${idx}.bullets`) || [];
+                          if (!current.includes(r)) {
+                            const updated = [...current.filter(Boolean), r];
+                            experienceFields.update(idx, { ...experienceFields.fields[idx], bullets: updated });
+                          }
+                        }} />
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -260,10 +409,10 @@ export default function IntakeForm() {
             </div>
           )}
 
-          {/* === SKILLS === */}
-          <SectionHeader id="skills" label="Skills" icon={Zap} />
+          {/* === SKILLS with suggestions === */}
+          <SectionHeader id="skills" label="Skills" icon={Zap} badge={(currentSoftSkills.filter(Boolean).length + (getValues("hardSkills")?.filter(s => s.label).length || 0))} />
           {expandedSections.skills && (
-            <div className="p-4 border border-border rounded-lg bg-card space-y-4">
+            <div className="p-4 border border-border rounded-lg bg-card space-y-5">
               {/* Hard Skills */}
               <div>
                 <Label className="text-xs font-semibold">Hard Skills</Label>
@@ -283,35 +432,108 @@ export default function IntakeForm() {
                     <Plus className="w-3 h-3" /> Add Skill
                   </Button>
                 </div>
+                {/* Hard skill category suggestions */}
+                {Object.entries(HARD_SKILL_SUGGESTIONS).map(([cat, skills]) => (
+                  <div key={cat} className="mt-3">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">{cat}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {skills.slice(0, 8).map((s) => (
+                        <Chip key={s} label={s} onClick={() => addHardSkill(s)} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
+
               {/* Soft Skills */}
               <div>
-                <Label className="text-xs font-semibold">Soft Skills (comma-separated)</Label>
-                <Input
-                  defaultValue=""
-                  {...register("softSkills")}
-                  placeholder="Leadership, Problem Solving, Communication"
-                  className="h-10 mt-1"
-                  onChange={() => {}}
-                />
-                <p className="text-xs text-muted-foreground mt-1">Separate with commas</p>
+                <Label className="text-xs font-semibold">Soft Skills — tap to add</Label>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {SOFT_SKILL_SUGGESTIONS.map((skill) => (
+                    <Chip
+                      key={skill}
+                      label={skill}
+                      active={currentSoftSkills.includes(skill)}
+                      onClick={() => toggleSoftSkill(skill)}
+                    />
+                  ))}
+                </div>
               </div>
+
               {/* Technical Skills */}
               <div>
-                <Label className="text-xs font-semibold">Technical Skills</Label>
+                <Label className="text-xs font-semibold">Technical Skills (free text)</Label>
                 <Textarea {...register("technicalSkills")} placeholder="List all technical skills..." className="mt-1 min-h-[60px] text-sm" />
               </div>
             </div>
           )}
 
-          {/* === LANGUAGES === */}
+          {/* === HOBBIES & INTERESTS with suggestions === */}
+          <SectionHeader id="hobbies" label="Hobbies & Interests" icon={Heart} badge={currentHobbies.length} />
+          {expandedSections.hobbies && (
+            <div className="p-4 border border-border rounded-lg bg-card space-y-3">
+              <p className="text-xs text-muted-foreground">Hobbies show personality! Employers love seeing them. Tap to add:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {HOBBY_SUGGESTIONS.map((hobby) => (
+                  <Chip
+                    key={hobby}
+                    label={hobby}
+                    active={currentHobbies.includes(hobby)}
+                    onClick={() => toggleHobby(hobby)}
+                  />
+                ))}
+              </div>
+              <div>
+                <Label className="text-xs">Add custom hobby</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    id="custom-hobby"
+                    placeholder="Type a hobby and press Add"
+                    className="h-10 flex-1"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const val = (e.target as HTMLInputElement).value.trim();
+                        if (val) { toggleHobby(val); (e.target as HTMLInputElement).value = ""; }
+                      }
+                    }}
+                  />
+                  <Button type="button" variant="outline" size="sm" onClick={() => {
+                    const input = document.getElementById("custom-hobby") as HTMLInputElement;
+                    if (input?.value.trim()) { toggleHobby(input.value.trim()); input.value = ""; }
+                  }}>
+                    <Plus className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+              {currentHobbies.length > 0 && (
+                <div className="pt-2 border-t border-border">
+                  <p className="text-xs font-semibold text-foreground mb-1">Selected ({currentHobbies.length}):</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {currentHobbies.map((h) => (
+                      <Chip key={h} label={h} active onClick={() => toggleHobby(h)} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* === LANGUAGES with suggestions === */}
           <SectionHeader id="languages" label="Languages" icon={Globe} />
           {expandedSections.languages && (
-            <div className="p-4 border border-border rounded-lg bg-card space-y-2">
+            <div className="p-4 border border-border rounded-lg bg-card space-y-3">
               {languageFields.fields.map((field, idx) => (
                 <div key={field.id} className="flex gap-2 items-center">
                   <Input {...register(`languages.${idx}.name`)} placeholder="Language" className="h-10 flex-1" />
-                  <Input {...register(`languages.${idx}.level`)} placeholder="Native / Professional" className="h-10 flex-1" />
+                  <select {...register(`languages.${idx}.level`)} className="flex h-10 w-40 rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    <option value="">Level...</option>
+                    <option value="Native">Native</option>
+                    <option value="Fluent">Fluent</option>
+                    <option value="Professional">Professional</option>
+                    <option value="Conversational">Conversational</option>
+                    <option value="Basic">Basic</option>
+                  </select>
                   {languageFields.fields.length > 1 && (
                     <Button type="button" variant="ghost" size="sm" onClick={() => languageFields.remove(idx)}>
                       <Trash2 className="w-3 h-3 text-destructive" />
@@ -319,9 +541,12 @@ export default function IntakeForm() {
                   )}
                 </div>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => languageFields.append({ name: "", level: "" })} className="gap-1">
-                <Plus className="w-3 h-3" /> Add Language
-              </Button>
+              <p className="text-xs text-muted-foreground">💡 Quick add SA languages:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {LANGUAGE_SUGGESTIONS.map((lang) => (
+                  <Chip key={lang} label={lang} onClick={() => addLanguage(lang)} />
+                ))}
+              </div>
             </div>
           )}
 

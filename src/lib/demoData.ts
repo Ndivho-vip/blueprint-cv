@@ -10,6 +10,20 @@ export const demoData: CVFormData = {
   website: "Geekaz Solutions",
   summary:
     "Technically proficient Developer and Hardware Specialist with a proven track record in diagnosing complex mobile/PC hardware faults and developing custom software solutions. Founder of Geekaz Solutions, focusing on Point of Sale (POS) systems and administrative dashboards. Blends hands-on engineering skills with software logic to build practical business tools.",
+
+  // SA Identity
+  idNumber: "0001015009088",
+  gender: "Male",
+  dateOfBirth: "2000-01-01",
+  nationality: "South African",
+  maritalStatus: "Single",
+  driversLicense: "Code B",
+  ethnicity: "Black",
+  showIdentity: true,
+
+  // Hobbies
+  hobbies: ["Reading Tech Blogs", "Building Robots", "Playing Chess", "Community Volunteering", "Gaming"],
+
   achievements: [
     { icon: "Trophy", title: "Successful Business Venture", description: "Founded and managed IT business" },
     { icon: "Trophy", title: "Robotics Competition Win", description: "Led team to win R1,000,000 school competition prize." },
