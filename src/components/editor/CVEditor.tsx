@@ -6,6 +6,7 @@ import CV from "@/components/CV";
 import MinimalTemplate from "@/components/templates/MinimalTemplate";
 import BoldTemplate from "@/components/templates/BoldTemplate";
 import ElegantTemplate from "@/components/templates/ElegantTemplate";
+import FormalTemplate from "@/components/templates/FormalTemplate";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
