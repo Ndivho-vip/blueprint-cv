@@ -79,6 +79,12 @@
   overflow: hidden;
 }
 
+/* Multi-page: flows naturally, page-breaks handled by CSS */
+.a4-multipage {
+  width: 210mm;
+  min-height: 297mm;
+}
+
 @media print {
   @page {
     size: A4;
@@ -89,19 +95,31 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  .a4-page {
+  .a4-page,
+  .a4-multipage {
     width: 210mm;
-    height: 297mm;
     margin: 0;
     box-shadow: none !important;
+  }
+  .a4-page {
+    height: 297mm;
+  }
+  .a4-multipage {
+    height: auto;
   }
   .no-print {
     display: none !important;
   }
+  /* Page break hints for multi-page */
+  .a4-multipage .page-break-inside-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
 }
 
 @media screen {
-  .a4-page {
+  .a4-page,
+  .a4-multipage {
     margin: 2rem auto;
     box-shadow: 0 4px 24px -4px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.05);
   }
