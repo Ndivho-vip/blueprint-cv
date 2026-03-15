@@ -36,7 +36,7 @@ const templates = [
 
 export default function CVEditor() {
   const { cvData, clearData, setCvData } = useCVContext();
-  const [activeTemplate, setActiveTemplate] = useState("blueprint");
+  const [activeTemplate, setActiveTemplate] = useState("formal");
   const [selectedTone, setSelectedTone] = useState<ToneStyle>("modern");
   const [atsEnabled, setAtsEnabled] = useState(false);
   const [atsScore, setAtsScore] = useState<number | null>(null);
