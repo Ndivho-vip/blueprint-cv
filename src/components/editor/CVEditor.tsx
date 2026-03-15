@@ -6,6 +6,7 @@ import CV from "@/components/CV";
 import MinimalTemplate from "@/components/templates/MinimalTemplate";
 import BoldTemplate from "@/components/templates/BoldTemplate";
 import ElegantTemplate from "@/components/templates/ElegantTemplate";
+import FormalTemplate from "@/components/templates/FormalTemplate";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -26,6 +27,7 @@ const tones: { value: ToneStyle; label: string; desc: string }[] = [
 ];
 
 const templates = [
+  { id: "formal", label: "Formal CV" },
   { id: "blueprint", label: "Blueprint" },
   { id: "minimal", label: "Minimal" },
   { id: "bold", label: "Bold" },
@@ -34,7 +36,7 @@ const templates = [
 
 export default function CVEditor() {
   const { cvData, clearData, setCvData } = useCVContext();
-  const [activeTemplate, setActiveTemplate] = useState("blueprint");
+  const [activeTemplate, setActiveTemplate] = useState("formal");
   const [selectedTone, setSelectedTone] = useState<ToneStyle>("modern");
   const [atsEnabled, setAtsEnabled] = useState(false);
   const [atsScore, setAtsScore] = useState<number | null>(null);
@@ -144,11 +146,12 @@ export default function CVEditor() {
 
   const renderTemplate = () => {
     switch (activeTemplate) {
+      case "formal": return <FormalTemplate formData={templateData} />;
       case "blueprint": return <CV formData={templateData} />;
       case "minimal": return <MinimalTemplate formData={templateData} />;
       case "bold": return <BoldTemplate formData={templateData} />;
       case "elegant": return <ElegantTemplate formData={templateData} />;
-      default: return <CV formData={templateData} />;
+      default: return <FormalTemplate formData={templateData} />;
     }
   };
 
