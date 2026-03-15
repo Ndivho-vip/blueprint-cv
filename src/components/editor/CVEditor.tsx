@@ -27,6 +27,7 @@ const tones: { value: ToneStyle; label: string; desc: string }[] = [
 ];
 
 const templates = [
+  { id: "formal", label: "Formal CV" },
   { id: "blueprint", label: "Blueprint" },
   { id: "minimal", label: "Minimal" },
   { id: "bold", label: "Bold" },
