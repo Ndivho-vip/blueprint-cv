@@ -187,7 +187,7 @@ export default function IntakeForm() {
                     <s.icon className={`w-3.5 h-3.5 shrink-0 ${isDone ? "text-green-500" : ""}`} />
                     <span className="flex-1 truncate">{s.label}</span>
                     {isDone && <span className="text-green-500 text-[10px]">✓</span>}
-                    {s.required && !isDone && <span className="text-destructive text-[10px]">*</span>}
+                    {"required" in s && s.required && !isDone && <span className="text-destructive text-[10px]">*</span>}
                   </button>
                 );
               })}
