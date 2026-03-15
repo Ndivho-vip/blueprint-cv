@@ -58,6 +58,12 @@ export const cvFormSchema = z.object({
   maritalStatus: z.string().optional(),
   driversLicense: z.string().optional(),
   ethnicity: z.string().optional(),
+  healthStatus: z.string().optional(),
+  criminalOffence: z.string().optional(),
+  homeLanguage: z.string().optional(),
+  nextOfKinName: z.string().optional(),
+  nextOfKinRelationship: z.string().optional(),
+  nextOfKinPhone: z.string().optional(),
 
   // Toggle visibility for identity fields on CV
   showIdentity: z.boolean().optional(),

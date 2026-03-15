@@ -146,11 +146,12 @@ export default function CVEditor() {
 
   const renderTemplate = () => {
     switch (activeTemplate) {
+      case "formal": return <FormalTemplate formData={templateData} />;
       case "blueprint": return <CV formData={templateData} />;
       case "minimal": return <MinimalTemplate formData={templateData} />;
       case "bold": return <BoldTemplate formData={templateData} />;
       case "elegant": return <ElegantTemplate formData={templateData} />;
-      default: return <CV formData={templateData} />;
+      default: return <FormalTemplate formData={templateData} />;
     }
   };
 
