@@ -11,7 +11,8 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 const MinimalTemplate = ({ formData }: { formData?: any }) => {
   const d = formData || defaultCvData;
   const contact = d.contact || { phone: d.phone, email: d.email, location: d.location, website: d.website };
-  const { achievements = [], education = {}, experience = [], technicalSkills = "", hobbies = [] } = d;
+  const { achievements = [], experience = [], technicalSkills = "", hobbies = [] } = d;
+  const educationList = Array.isArray(d.education) ? d.education : d.education ? [d.education] : [];
 
   const identityItems = d.showIdentity ? [
     d.idNumber && { label: "ID", value: d.idNumber },
