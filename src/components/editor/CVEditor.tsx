@@ -47,7 +47,8 @@ export default function CVEditor() {
   const [loading, setLoading] = useState<string | null>(null);
   const [coverLetter, setCoverLetter] = useState("");
   const [linkedinSummary, setLinkedinSummary] = useState("");
-  const [targetCompany, setTargetCompany] = useState("");
+  const [targetCompany, setTargetCompany] = useState(cvData?.targetCompany || "");
+  const [targetPosition, setTargetPosition] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
   const [sidePanel, setSidePanel] = useState<"ai" | "export" | "ats" | null>("ai");
 
