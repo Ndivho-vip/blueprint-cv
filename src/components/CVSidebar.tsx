@@ -19,7 +19,8 @@ const SkillBar = ({ label, level }: { label: string; level: number }) => (
 const CVSidebar = ({ data }: { data?: any }) => {
   const d = data || defaultCvData;
   const contact = d.contact || { phone: d.phone, email: d.email, location: d.location, website: d.website };
-  const { hardSkills = [], softSkills = [], languages = [], education = {}, references = [] } = d;
+  const { hardSkills = [], softSkills = [], languages = [], references = [] } = d;
+  const educationList = Array.isArray(d.education) ? d.education : d.education ? [d.education] : [];
 
   return (
     <div
