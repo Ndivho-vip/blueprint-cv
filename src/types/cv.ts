@@ -44,6 +44,8 @@ export const cvFormSchema = z.object({
   name: z.string().trim().min(1, "Full name is required").max(100),
   title: z.string().trim().min(1, "Job title is required").max(100),
   tagline: z.string().max(200).optional(),
+  targetJobId: z.string().optional(),
+  targetCompany: z.string().max(100).optional(),
   phone: z.string().trim().min(1, "Phone number is required").max(30),
   email: z.string().trim().email("Valid email required").max(255),
   location: z.string().trim().min(1, "Location is required").max(100),
