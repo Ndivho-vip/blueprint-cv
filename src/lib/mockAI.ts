@@ -60,19 +60,41 @@ export async function atsOptimize(text: string, jobTitle: string): Promise<{ opt
   return { optimized, score, keywords: found.concat(missing.slice(0, 3)) };
 }
 
-export async function generateCoverLetter(name: string, title: string, company: string): Promise<string> {
+export async function generateCoverLetter(
+  name: string,
+  currentTitle: string,
+  company: string,
+  targetPosition: string,
+  skills: string[] = [],
+  experience: string[] = [],
+): Promise<string> {
   await delay(1200);
+  const skillText = skills.length > 0
+    ? `My key competencies include ${skills.slice(0, 5).join(", ")}, which directly align with the requirements of the ${targetPosition} role.`
+    : `My diverse skill set positions me well to make an immediate impact in the ${targetPosition} role.`;
+  const expText = experience.length > 0
+    ? `In my most recent role as ${experience[0]}, I have gained valuable experience that is directly transferable to this position.`
+    : `Throughout my career, I have consistently delivered results that exceed expectations.`;
   return `Dear Hiring Manager,
 
-I am writing to express my keen interest in the ${title} position at ${company}. With hands-on experience in hardware repair, software development, and community-focused tech solutions, I am confident in my ability to contribute meaningfully to your team.
+RE: APPLICATION FOR ${targetPosition.toUpperCase()} POSITION
 
-As the Founder of Geekaz Solutions, I have developed custom POS systems, performed advanced hardware diagnostics, and mentored aspiring technicians. My background combines practical engineering skills with a passion for building tools that solve real problems for real people.
+I am writing to express my keen interest in the ${targetPosition} position at ${company}. As a dedicated ${currentTitle}, I bring hands-on experience and a proven track record that I believe makes me an ideal candidate for this opportunity.
 
-I would welcome the opportunity to discuss how my skills and experience align with your needs.
+${expText}
 
-Sincerely,
+${skillText}
+
+I am passionate about contributing to ${company}'s success and am confident that my background, combined with my strong work ethic and eagerness to learn, will allow me to add value to your team from day one.
+
+I have attached my CV for your review and would welcome the opportunity to discuss how my qualifications align with your needs. I am available for an interview at your earliest convenience.
+
+Thank you for considering my application. I look forward to hearing from you.
+
+Yours faithfully,
 ${name}`;
 }
+
 
 export async function generateLinkedInSummary(name: string, title: string, summary: string): Promise<string> {
   await delay(800);

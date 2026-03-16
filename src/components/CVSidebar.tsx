@@ -19,7 +19,8 @@ const SkillBar = ({ label, level }: { label: string; level: number }) => (
 const CVSidebar = ({ data }: { data?: any }) => {
   const d = data || defaultCvData;
   const contact = d.contact || { phone: d.phone, email: d.email, location: d.location, website: d.website };
-  const { hardSkills = [], softSkills = [], languages = [], education = {}, references = [] } = d;
+  const { hardSkills = [], softSkills = [], languages = [], references = [] } = d;
+  const educationList = Array.isArray(d.education) ? d.education : d.education ? [d.education] : [];
 
   return (
     <div
@@ -64,12 +65,14 @@ const CVSidebar = ({ data }: { data?: any }) => {
 
       <div>
         <SectionTitle>Education</SectionTitle>
-        <div className="text-[8.5px]">
+        {educationList.map((education: any, idx: number) => (
+        <div key={idx} className="text-[8.5px] mb-1.5">
           <p className="font-semibold text-[9px]">{education.degree}</p>
           <p className="text-sidebar-foreground/70">{education.school}</p>
           <p className="text-sidebar-foreground/50 text-[7.5px] mt-0.5">{education.year}</p>
-          <p className="text-sidebar-foreground/70 mt-0.5">Focus: {education.focus}</p>
+          {education.focus && <p className="text-sidebar-foreground/70 mt-0.5">Focus: {education.focus}</p>}
         </div>
+        ))}
       </div>
 
       <div>

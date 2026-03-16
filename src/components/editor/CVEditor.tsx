@@ -47,7 +47,8 @@ export default function CVEditor() {
   const [loading, setLoading] = useState<string | null>(null);
   const [coverLetter, setCoverLetter] = useState("");
   const [linkedinSummary, setLinkedinSummary] = useState("");
-  const [targetCompany, setTargetCompany] = useState("");
+  const [targetCompany, setTargetCompany] = useState(cvData?.targetCompany || "");
+  const [targetPosition, setTargetPosition] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
   const [sidePanel, setSidePanel] = useState<"ai" | "export" | "ats" | null>("ai");
 
@@ -86,8 +87,14 @@ export default function CVEditor() {
 
   const handleCoverLetter = async () => {
     if (!targetCompany) { toast({ title: "Enter a company name", variant: "destructive" }); return; }
+    if (!targetPosition) { toast({ title: "Enter the position you're applying for", variant: "destructive" }); return; }
     setLoading("cover");
-    setCoverLetter(await generateCoverLetter(cvData.name, cvData.title, targetCompany));
+    const skills = [
+      ...cvData.hardSkills.map(s => s.label),
+      ...cvData.softSkills,
+    ].filter(Boolean);
+    const expTitles = cvData.experience.map(e => `${e.title} at ${e.org}`).filter(Boolean);
+    setCoverLetter(await generateCoverLetter(cvData.name, cvData.title, targetCompany, targetPosition, skills, expTitles));
     setLoading(null);
   };
 
@@ -212,7 +219,8 @@ export default function CVEditor() {
                   </div>
                   <div className="border-t border-border pt-3">
                     <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">Cover Letter</Label>
-                    <Input value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} placeholder="Target company" className="h-8 text-sm mb-1.5" />
+                    <Input value={targetPosition} onChange={(e) => setTargetPosition(e.target.value)} placeholder="Position applying for" className="h-8 text-sm mb-1.5" />
+                    <Input value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} placeholder="Company name" className="h-8 text-sm mb-1.5" />
                     <Button onClick={handleCoverLetter} disabled={loading === "cover"} variant="outline" className="w-full gap-1.5 h-9 text-xs">
                       {loading === "cover" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
                       Generate

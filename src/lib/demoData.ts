@@ -4,6 +4,8 @@ export const demoData: CVFormData = {
   name: "MUDAU NDIVHO",
   title: "Founder & Lead Technician",
   tagline: "Specializing in POS Solutions, Mobile Hardware Architecture, and Reverse Engineering.",
+  targetJobId: "it-technician",
+  targetCompany: "",
   phone: "+27798889298",
   email: "MRNDIVHO@GMAIL.COM",
   location: "Makhado, Limpopo, South Africa",
@@ -43,13 +45,13 @@ export const demoData: CVFormData = {
     { name: "Tshivenda", level: "Native" },
     { name: "English", level: "Professional" },
   ],
-  education: {
+  education: [{
     degree: "National Senior Certificate (Grade 12)",
     school: "Ozias Davhana Secondary School",
     year: "2022",
     location: "Limpopo, South Africa",
     focus: "Major Subjects: Mathematical Literacy, Life Sciences, English.",
-  },
+  }],
   experience: [
     {
       id: "1",

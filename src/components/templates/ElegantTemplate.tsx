@@ -4,7 +4,8 @@ import { cvData as defaultCvData } from "@/data/cvData";
 const ElegantTemplate = ({ formData }: { formData?: any }) => {
   const d = formData || defaultCvData;
   const contact = d.contact || { phone: d.phone, email: d.email, location: d.location, website: d.website };
-  const { hardSkills = [], softSkills = [], languages = [], education = {}, experience = [], references = [] } = d;
+  const { hardSkills = [], softSkills = [], languages = [], experience = [], references = [] } = d;
+  const educationList = Array.isArray(d.education) ? d.education : d.education ? [d.education] : [];
 
   return (
     <div className="a4-page bg-card grid grid-cols-[65%_35%]">
@@ -92,12 +93,14 @@ const ElegantTemplate = ({ formData }: { formData?: any }) => {
 
         <div>
           <h3 className="font-oswald text-[10px] font-bold uppercase tracking-[0.2em] text-foreground mb-1.5">Education</h3>
-          <div className="text-[8px] text-foreground/70">
+          {educationList.map((education: any, idx: number) => (
+          <div key={idx} className="text-[8px] text-foreground/70 mb-1.5">
             <p className="font-semibold text-foreground text-[8.5px]">{education.degree}</p>
             <p>{education.school}</p>
             <p className="text-muted-foreground text-[7.5px] mt-0.5">{education.year}</p>
-            <p className="mt-0.5">Focus: {education.focus}</p>
+            {education.focus && <p className="mt-0.5">Focus: {education.focus}</p>}
           </div>
+          ))}
         </div>
 
         <div>
