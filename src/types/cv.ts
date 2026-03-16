@@ -78,7 +78,7 @@ export const cvFormSchema = z.object({
   softSkills: z.array(z.string()),
   technicalSkills: z.string().optional(),
   languages: z.array(languageSchema),
-  education: educationSchema,
+  education: z.array(educationSchema),
   experience: z.array(experienceSchema),
   references: z.array(referenceSchema),
 });
