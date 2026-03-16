@@ -54,13 +54,13 @@ export const cvData = {
     { name: "English", level: "Professional" },
   ],
 
-  education: {
+  education: [{
     degree: "National Senior Certificate (Grade 12)",
     school: "Ozias Davhana Secondary School",
     year: "01/2022 - 01/2022",
     location: "Limpopo, South Africa",
     focus: "Major Subjects: Tshivenda, English, Mathematical Literacy, History, Geography, Life Sciences.",
-  },
+  }],
 
   experience: [
     {
