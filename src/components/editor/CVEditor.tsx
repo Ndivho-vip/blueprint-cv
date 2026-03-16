@@ -87,8 +87,14 @@ export default function CVEditor() {
 
   const handleCoverLetter = async () => {
     if (!targetCompany) { toast({ title: "Enter a company name", variant: "destructive" }); return; }
+    if (!targetPosition) { toast({ title: "Enter the position you're applying for", variant: "destructive" }); return; }
     setLoading("cover");
-    setCoverLetter(await generateCoverLetter(cvData.name, cvData.title, targetCompany));
+    const skills = [
+      ...cvData.hardSkills.map(s => s.label),
+      ...cvData.softSkills,
+    ].filter(Boolean);
+    const expTitles = cvData.experience.map(e => `${e.title} at ${e.org}`).filter(Boolean);
+    setCoverLetter(await generateCoverLetter(cvData.name, cvData.title, targetCompany, targetPosition, skills, expTitles));
     setLoading(null);
   };
 
