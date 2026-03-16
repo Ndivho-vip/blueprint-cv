@@ -97,7 +97,8 @@ const MinimalTemplate = ({ formData }: { formData?: any }) => {
       </div>
 
       <SectionTitle>Education</SectionTitle>
-      <div className="mt-1">
+      {educationList.map((education: any, idx: number) => (
+      <div key={idx} className="mt-1 mb-2">
         <div className="flex items-baseline justify-between">
           <h3 className="text-[11px] font-oswald text-foreground/80">{education.school}</h3>
           <span className="text-[8px] text-muted-foreground">{education.location}</span>
@@ -106,10 +107,13 @@ const MinimalTemplate = ({ formData }: { formData?: any }) => {
           <h4 className="text-[9px] font-bold text-foreground">{education.degree}</h4>
           <span className="text-[8px] text-muted-foreground">{education.year}</span>
         </div>
+        {education.focus && (
         <ul className="mt-0.5 pl-3">
           <li className="text-[8px] text-foreground/70 leading-[1.5] list-disc">{education.focus}</li>
         </ul>
+        )}
       </div>
+      ))}
 
       <SectionTitle>Skills</SectionTitle>
       <div className="mt-1">

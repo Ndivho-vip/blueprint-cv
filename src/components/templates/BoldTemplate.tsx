@@ -61,12 +61,14 @@ const BoldTemplate = ({ formData }: { formData?: any }) => {
           </div>
           <div>
             <h3 className="font-oswald text-[10px] font-bold uppercase text-foreground mb-1.5 flex items-center gap-1"><GraduationCap className="w-2.5 h-2.5 text-primary" /> Education</h3>
-            <div className="text-[8px] text-foreground/70">
+            {educationList.map((education: any, idx: number) => (
+            <div key={idx} className="text-[8px] text-foreground/70 mb-1.5">
               <p className="font-semibold text-foreground">{education.degree}</p>
               <p>{education.school}</p>
               <p className="text-muted-foreground text-[7.5px] mt-0.5">{education.year}</p>
-              <p className="mt-0.5">Focus: {education.focus}</p>
+              {education.focus && <p className="mt-0.5">Focus: {education.focus}</p>}
             </div>
+            ))}
             <h3 className="font-oswald text-[10px] font-bold uppercase text-foreground mt-2.5 mb-1">Languages</h3>
             <div className="text-[8px] space-y-0.5">
               {languages.map((l: any) => (<div key={l.name} className="flex justify-between text-foreground/70"><span>{l.name}</span><span className="text-muted-foreground">{l.level}</span></div>))}
