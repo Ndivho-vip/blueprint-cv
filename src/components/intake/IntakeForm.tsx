@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cvFormSchema, type CVFormData } from "@/types/cv";
@@ -15,12 +15,15 @@ import {
   HOBBY_SUGGESTIONS, SOFT_SKILL_SUGGESTIONS, HARD_SKILL_SUGGESTIONS,
   LANGUAGE_SUGGESTIONS, RESPONSIBILITY_SUGGESTIONS,
 } from "@/lib/suggestions";
+import { JOB_CATEGORIES, JOB_ROLES, getRoleById, type JobRole } from "@/lib/jobRoles";
 import {
   User, Briefcase, Mail, Phone, MapPin, Globe, GraduationCap,
   Plus, Trash2, Zap, Upload, Sparkles,
   IdCard, Heart, CalendarDays, Flag, Car, Users,
-  ChevronRight, Play,
+  ChevronRight, Play, Target, Building2, Search,
 } from "lucide-react";
+
+const DRAFT_KEY = "cv-builder-draft";
 
 /** Clickable suggestion chip */
 const Chip = ({ label, active, onClick }: { label: string; active?: boolean; onClick: () => void }) => (
@@ -38,6 +41,7 @@ const Chip = ({ label, active, onClick }: { label: string; active?: boolean; onC
 );
 
 const SECTIONS = [
+  { id: "target", label: "Target Job", icon: Target, required: true },
   { id: "personal", label: "Personal Info", icon: User, required: true },
   { id: "identity", label: "Identity (SA)", icon: IdCard },
   { id: "summary", label: "Summary", icon: Briefcase },
@@ -52,23 +56,33 @@ const SECTIONS = [
 
 export default function IntakeForm() {
   const { setCvData } = useCVContext();
-  const [activeSection, setActiveSection] = useState("personal");
+  const [activeSection, setActiveSection] = useState("target");
   const [showIdentity, setShowIdentity] = useState(false);
+  const [jobSearch, setJobSearch] = useState("");
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Load draft from localStorage
+  const savedDraft = useMemo(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  }, []);
 
   const {
     register, handleSubmit, control, reset, watch, setValue, getValues, formState: { errors },
   } = useForm<CVFormData>({
     resolver: zodResolver(cvFormSchema),
-    defaultValues: {
-      name: "", title: "", tagline: "", phone: "", email: "", location: "", website: "",
+    defaultValues: savedDraft || {
+      name: "", title: "", tagline: "", targetJobId: "", targetCompany: "",
+      phone: "", email: "", location: "", website: "",
       summary: "", technicalSkills: "",
       idNumber: "", gender: "", dateOfBirth: "", nationality: "", maritalStatus: "",
       driversLicense: "", ethnicity: "", showIdentity: false,
       hobbies: [],
       achievements: [], hardSkills: [{ label: "", level: 70 }],
       softSkills: [""], languages: [{ name: "", level: "" }],
-      education: { degree: "", school: "", year: "", location: "", focus: "" },
+      education: [{ degree: "", school: "", year: "", location: "", focus: "" }],
       experience: [{ id: "1", title: "", org: "", period: "", location: "", bullets: [""], highlight: false }],
       references: [{ name: "", role: "", phone: "" }],
     },
@@ -79,9 +93,49 @@ export default function IntakeForm() {
   const achievementFields = useFieldArray({ control, name: "achievements" });
   const referenceFields = useFieldArray({ control, name: "references" });
   const languageFields = useFieldArray({ control, name: "languages" });
+  const educationFields = useFieldArray({ control, name: "education" });
 
   const currentSoftSkills = watch("softSkills") || [];
   const currentHobbies = watch("hobbies") || [];
+  const selectedRoleId = watch("targetJobId");
+  const selectedRole = selectedRoleId ? getRoleById(selectedRoleId) : null;
+
+  // Auto-save draft every 3 seconds
+  const formValues = watch();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(formValues)); } catch {}
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [formValues]);
+
+  // Smart suggestions based on selected role
+  const smartHardSkills = useMemo(() => {
+    if (!selectedRole) return Object.entries(HARD_SKILL_SUGGESTIONS);
+    return [
+      [`Recommended for ${selectedRole.label}`, selectedRole.hardSkills],
+      ...Object.entries(HARD_SKILL_SUGGESTIONS),
+    ] as [string, string[]][];
+  }, [selectedRole]);
+
+  const smartSoftSkills = useMemo(() => {
+    if (!selectedRole) return SOFT_SKILL_SUGGESTIONS;
+    // Put role-specific skills first
+    const roleSkills = selectedRole.softSkills;
+    const rest = SOFT_SKILL_SUGGESTIONS.filter((s) => !roleSkills.includes(s));
+    return [...roleSkills, ...rest];
+  }, [selectedRole]);
+
+  const smartResponsibilities = useMemo(() => {
+    if (!selectedRole) return RESPONSIBILITY_SUGGESTIONS;
+    return [...selectedRole.responsibilities, ...RESPONSIBILITY_SUGGESTIONS.filter((r) => !selectedRole.responsibilities.includes(r))];
+  }, [selectedRole]);
+
+  const filteredRoles = useMemo(() => {
+    if (!jobSearch) return JOB_ROLES;
+    const q = jobSearch.toLowerCase();
+    return JOB_ROLES.filter((r) => r.label.toLowerCase().includes(q) || r.category.toLowerCase().includes(q));
+  }, [jobSearch]);
 
   const scrollToSection = (id: string) => {
     setActiveSection(id);
@@ -108,6 +162,12 @@ export default function IntakeForm() {
     if (!existing.find((l) => l.name === name)) languageFields.append({ name, level: "Conversational" });
   };
 
+  const selectRole = (role: JobRole) => {
+    setValue("targetJobId", role.id);
+    // Auto-fill title if empty
+    if (!getValues("title")) setValue("title", role.label);
+  };
+
   const onSubmit = (data: CVFormData) => {
     data.softSkills = data.softSkills.filter(Boolean);
     data.hobbies = (data.hobbies || []).filter(Boolean);
@@ -117,13 +177,32 @@ export default function IntakeForm() {
     data.achievements = data.achievements.filter((a) => a.title);
     data.references = data.references.filter((r) => r.name);
     data.languages = data.languages.filter((l) => l.name);
+    data.education = data.education.filter((e) => e.degree || e.school);
     data.showIdentity = showIdentity;
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
     setCvData(data);
   };
 
   const autofill = () => {
     reset(demoData);
     setShowIdentity(true);
+  };
+
+  const clearDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+    reset({
+      name: "", title: "", tagline: "", targetJobId: "", targetCompany: "",
+      phone: "", email: "", location: "", website: "",
+      summary: "", technicalSkills: "",
+      idNumber: "", gender: "", dateOfBirth: "", nationality: "", maritalStatus: "",
+      driversLicense: "", ethnicity: "", showIdentity: false,
+      hobbies: [],
+      achievements: [], hardSkills: [{ label: "", level: 70 }],
+      softSkills: [""], languages: [{ name: "", level: "" }],
+      education: [{ degree: "", school: "", year: "", location: "", focus: "" }],
+      experience: [{ id: "1", title: "", org: "", period: "", location: "", bullets: [""], highlight: false }],
+      references: [{ name: "", role: "", phone: "" }],
+    });
   };
 
   const FieldError = ({ msg }: { msg?: string }) =>
@@ -133,10 +212,11 @@ export default function IntakeForm() {
     const name = watch("name");
     const title = watch("title");
     const done: string[] = [];
+    if (selectedRoleId) done.push("target");
     if (name && title) done.push("personal");
     if (watch("summary")) done.push("summary");
     if (watch("experience")?.some(e => e.title)) done.push("experience");
-    if (watch("education.degree")) done.push("education");
+    if (watch("education")?.some((e: any) => e.degree)) done.push("education");
     if (watch("hardSkills")?.some(s => s.label) || currentSoftSkills.filter(Boolean).length > 0) done.push("skills");
     if (currentHobbies.length > 0) done.push("hobbies");
     if (watch("languages")?.some(l => l.name)) done.push("languages");
@@ -150,11 +230,14 @@ export default function IntakeForm() {
 
   return (
     <AppShell
-      statusText={`${done.length}/${SECTIONS.length} sections completed`}
+      statusText={`${done.length}/${SECTIONS.length} sections completed${savedDraft ? " • Draft restored" : ""}`}
       actions={
         <div className="flex items-center gap-1">
           <Button type="button" variant="ghost" size="sm" onClick={autofill} className="h-7 text-[11px] text-secondary-foreground/80 gap-1 px-2 hover:bg-secondary-foreground/10">
             <Zap className="w-3 h-3" /> Demo
+          </Button>
+          <Button type="button" variant="ghost" size="sm" onClick={clearDraft} className="h-7 text-[11px] text-secondary-foreground/80 gap-1 px-2 hover:bg-secondary-foreground/10">
+            <Trash2 className="w-3 h-3" /> Clear
           </Button>
           <Button type="button" variant="ghost" size="sm" disabled className="h-7 text-[11px] text-secondary-foreground/40 gap-1 px-2">
             <Upload className="w-3 h-3" /> Import
@@ -205,6 +288,72 @@ export default function IntakeForm() {
         {/* ─── Main Form Content ─── */}
         <ScrollArea className="flex-1">
           <div className="max-w-2xl mx-auto p-6 space-y-6">
+
+            {/* === TARGET JOB === */}
+            <div ref={(el) => { sectionRefs.current.target = el; }}>
+              <SectionLabel icon={Target} label="What job are you applying for?" />
+              <div className="mt-3 p-4 border border-border rounded bg-card space-y-3">
+                <p className="text-[11px] text-muted-foreground">Select a role and we'll tailor your skill suggestions, responsibilities, and ATS keywords automatically.</p>
+                
+                {/* Company Name */}
+                <div>
+                  <Label className="text-[11px] font-medium flex items-center gap-1"><Building2 className="w-3 h-3" /> Company / Organization (optional)</Label>
+                  <Input {...register("targetCompany")} placeholder="e.g. Shoprite, Pick n Pay, MTN..." className="h-9 text-sm mt-1" />
+                </div>
+
+                {/* Search */}
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <Input
+                    value={jobSearch}
+                    onChange={(e) => setJobSearch(e.target.value)}
+                    placeholder="Search job roles..."
+                    className="pl-8 h-9 text-sm"
+                  />
+                </div>
+
+                {/* Role Grid */}
+                <div className="space-y-3">
+                  {JOB_CATEGORIES.map((cat) => {
+                    const roles = filteredRoles.filter((r) => r.category === cat);
+                    if (roles.length === 0) return null;
+                    return (
+                      <div key={cat}>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">{cat}</p>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {roles.map((role) => (
+                            <button
+                              key={role.id}
+                              type="button"
+                              onClick={() => selectRole(role)}
+                              className={`p-2 rounded border text-left transition-all ${
+                                selectedRoleId === role.id
+                                  ? "border-primary bg-primary/10 text-primary ring-1 ring-primary/30"
+                                  : "border-border bg-background hover:bg-muted text-foreground"
+                              }`}
+                            >
+                              <span className="text-xs font-medium block">{role.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Custom role */}
+                <div className="border-t border-border pt-3">
+                  <p className="text-[10px] text-muted-foreground mb-1">Don't see your role? Just type your job title below in Personal Info.</p>
+                </div>
+
+                {selectedRole && (
+                  <div className="p-3 bg-primary/5 rounded border border-primary/20">
+                    <p className="text-xs font-semibold text-primary">✓ Selected: {selectedRole.label}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Skills and suggestions will be tailored for this role</p>
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* === PERSONAL INFO === */}
             <div ref={(el) => { sectionRefs.current.personal = el; }}>
@@ -388,7 +537,7 @@ export default function IntakeForm() {
                         className="mt-0.5 min-h-[50px] text-sm"
                       />
                       <div className="flex flex-wrap gap-1 mt-1.5">
-                        {RESPONSIBILITY_SUGGESTIONS.slice(0, 6).map((r) => (
+                        {smartResponsibilities.slice(0, 6).map((r) => (
                           <Chip key={r} label={r} onClick={() => {
                             const current = getValues(`experience.${idx}.bullets`) || [];
                             if (!current.includes(r)) {
@@ -406,34 +555,47 @@ export default function IntakeForm() {
               </div>
             </div>
 
-            {/* === EDUCATION === */}
+            {/* === EDUCATION (multiple) === */}
             <div ref={(el) => { sectionRefs.current.education = el; }}>
-              <SectionLabel icon={GraduationCap} label="Education" />
-              <div className="mt-3 p-4 border border-border rounded bg-card">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <div className="md:col-span-2">
-                    <Label className="text-[11px]">Degree / Certificate *</Label>
-                    <Input {...register("education.degree")} placeholder="e.g. National Senior Certificate" className="h-9 text-sm mt-0.5" />
-                    <FieldError msg={errors.education?.degree?.message} />
+              <SectionLabel icon={GraduationCap} label="Education" badge={educationFields.fields.length} />
+              <div className="mt-3 space-y-3">
+                {educationFields.fields.map((field, idx) => (
+                  <div key={field.id} className="p-4 border border-border rounded bg-card">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Qualification {idx + 1}</span>
+                      {educationFields.fields.length > 1 && (
+                        <Button type="button" variant="ghost" size="sm" onClick={() => educationFields.remove(idx)} className="h-6 w-6 p-0">
+                          <Trash2 className="w-3 h-3 text-destructive" />
+                        </Button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <div className="md:col-span-2">
+                        <Label className="text-[11px]">Degree / Certificate *</Label>
+                        <Input {...register(`education.${idx}.degree`)} placeholder="e.g. National Senior Certificate" className="h-9 text-sm mt-0.5" />
+                      </div>
+                      <div>
+                        <Label className="text-[11px]">School *</Label>
+                        <Input {...register(`education.${idx}.school`)} placeholder="School name" className="h-9 text-sm mt-0.5" />
+                      </div>
+                      <div>
+                        <Label className="text-[11px]">Year</Label>
+                        <Input {...register(`education.${idx}.year`)} placeholder="2022" className="h-9 text-sm mt-0.5" />
+                      </div>
+                      <div>
+                        <Label className="text-[11px]">Location</Label>
+                        <Input {...register(`education.${idx}.location`)} placeholder="Province, Country" className="h-9 text-sm mt-0.5" />
+                      </div>
+                      <div>
+                        <Label className="text-[11px]">Focus / Major Subjects</Label>
+                        <Input {...register(`education.${idx}.focus`)} placeholder="Subjects or specialization" className="h-9 text-sm mt-0.5" />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <Label className="text-[11px]">School *</Label>
-                    <Input {...register("education.school")} placeholder="School name" className="h-9 text-sm mt-0.5" />
-                    <FieldError msg={errors.education?.school?.message} />
-                  </div>
-                  <div>
-                    <Label className="text-[11px]">Year</Label>
-                    <Input {...register("education.year")} placeholder="2022" className="h-9 text-sm mt-0.5" />
-                  </div>
-                  <div>
-                    <Label className="text-[11px]">Location</Label>
-                    <Input {...register("education.location")} placeholder="Province, Country" className="h-9 text-sm mt-0.5" />
-                  </div>
-                  <div>
-                    <Label className="text-[11px]">Focus / Major Subjects</Label>
-                    <Input {...register("education.focus")} placeholder="Subjects or specialization" className="h-9 text-sm mt-0.5" />
-                  </div>
-                </div>
+                ))}
+                <Button type="button" variant="outline" size="sm" onClick={() => educationFields.append({ degree: "", school: "", year: "", location: "", focus: "" })} className="gap-1 h-8 text-xs">
+                  <Plus className="w-3 h-3" /> Add Qualification
+                </Button>
               </div>
             </div>
 
@@ -441,6 +603,11 @@ export default function IntakeForm() {
             <div ref={(el) => { sectionRefs.current.skills = el; }}>
               <SectionLabel icon={Zap} label="Skills" badge={currentSoftSkills.filter(Boolean).length + (getValues("hardSkills")?.filter(s => s.label).length || 0)} />
               <div className="mt-3 p-4 border border-border rounded bg-card space-y-4">
+                {selectedRole && (
+                  <div className="p-2 rounded bg-primary/5 border border-primary/20">
+                    <p className="text-[10px] text-primary font-semibold">🎯 Showing recommended skills for: {selectedRole.label}</p>
+                  </div>
+                )}
                 {/* Hard Skills */}
                 <div>
                   <Label className="text-[11px] font-semibold">Hard Skills</Label>
@@ -460,11 +627,11 @@ export default function IntakeForm() {
                       <Plus className="w-3 h-3" /> Add
                     </Button>
                   </div>
-                  {Object.entries(HARD_SKILL_SUGGESTIONS).map(([cat, skills]) => (
+                  {smartHardSkills.map(([cat, skills]) => (
                     <div key={cat} className="mt-2">
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">{cat}</p>
                       <div className="flex flex-wrap gap-1">
-                        {skills.slice(0, 8).map((s) => (
+                        {(skills as string[]).slice(0, 10).map((s) => (
                           <Chip key={s} label={s} onClick={() => addHardSkill(s)} />
                         ))}
                       </div>
@@ -475,7 +642,7 @@ export default function IntakeForm() {
                 <div>
                   <Label className="text-[11px] font-semibold">Soft Skills — tap to add</Label>
                   <div className="flex flex-wrap gap-1 mt-1.5">
-                    {SOFT_SKILL_SUGGESTIONS.map((skill) => (
+                    {smartSoftSkills.map((skill) => (
                       <Chip key={skill} label={skill} active={currentSoftSkills.includes(skill)} onClick={() => toggleSoftSkill(skill)} />
                     ))}
                   </div>
