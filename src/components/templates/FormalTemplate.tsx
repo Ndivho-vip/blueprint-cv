@@ -116,11 +116,13 @@ const FormalTemplate = ({ formData }: { formData?: any }) => {
       )}
 
       {/* Education */}
+      {educationList.length > 0 && (
       <div className="page-break-inside-avoid">
         <SectionTitle>Educational Background</SectionTitle>
-        <div className="mt-2">
+        {educationList.map((education: any, idx: number) => (
+        <div key={idx} className="mt-2">
           <h3 className="text-[12px] font-bold underline underline-offset-2 mb-2">
-            Secondary education
+            {idx === 0 ? "Secondary education" : `Qualification ${idx + 1}`}
           </h3>
           <DetailRow label="Name of school" value={education.school} />
           <DetailRow label="Highest grade passed" value={education.degree} />
@@ -129,7 +131,9 @@ const FormalTemplate = ({ formData }: { formData?: any }) => {
             <span className="font-bold">Year obtained: {education.year}</span>
           </div>
         </div>
+        ))}
       </div>
+      )}
 
       {/* Skills */}
       {allSkills.length > 0 && (
