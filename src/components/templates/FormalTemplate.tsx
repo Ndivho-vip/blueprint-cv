@@ -22,10 +22,11 @@ const FormalTemplate = ({ formData }: { formData?: any }) => {
   const d = formData || defaultCvData;
   const contact = d.contact || { phone: d.phone, email: d.email, location: d.location };
   const {
-    achievements = [], education = {}, experience = [],
+    achievements = [], experience = [],
     technicalSkills = "", hobbies = [], references = [],
     hardSkills = [], softSkills = [], languages = [],
   } = d;
+  const educationList = Array.isArray(d.education) ? d.education : d.education ? [d.education] : [];
 
   const allSkills = [
     ...hardSkills.map((s: any) => s.label),
