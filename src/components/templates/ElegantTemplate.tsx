@@ -4,7 +4,8 @@ import { cvData as defaultCvData } from "@/data/cvData";
 const ElegantTemplate = ({ formData }: { formData?: any }) => {
   const d = formData || defaultCvData;
   const contact = d.contact || { phone: d.phone, email: d.email, location: d.location, website: d.website };
-  const { hardSkills = [], softSkills = [], languages = [], education = {}, experience = [], references = [] } = d;
+  const { hardSkills = [], softSkills = [], languages = [], experience = [], references = [] } = d;
+  const educationList = Array.isArray(d.education) ? d.education : d.education ? [d.education] : [];
 
   return (
     <div className="a4-page bg-card grid grid-cols-[65%_35%]">
