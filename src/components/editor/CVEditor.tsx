@@ -219,7 +219,8 @@ export default function CVEditor() {
                   </div>
                   <div className="border-t border-border pt-3">
                     <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">Cover Letter</Label>
-                    <Input value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} placeholder="Target company" className="h-8 text-sm mb-1.5" />
+                    <Input value={targetPosition} onChange={(e) => setTargetPosition(e.target.value)} placeholder="Position applying for" className="h-8 text-sm mb-1.5" />
+                    <Input value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} placeholder="Company name" className="h-8 text-sm mb-1.5" />
                     <Button onClick={handleCoverLetter} disabled={loading === "cover"} variant="outline" className="w-full gap-1.5 h-9 text-xs">
                       {loading === "cover" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
                       Generate
