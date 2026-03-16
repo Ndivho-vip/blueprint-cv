@@ -94,7 +94,7 @@ Thank you for considering my application. I look forward to hearing from you.
 Yours faithfully,
 ${name}`;
 }
-}
+
 
 export async function generateLinkedInSummary(name: string, title: string, summary: string): Promise<string> {
   await delay(800);
