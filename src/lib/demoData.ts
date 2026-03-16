@@ -4,6 +4,8 @@ export const demoData: CVFormData = {
   name: "MUDAU NDIVHO",
   title: "Founder & Lead Technician",
   tagline: "Specializing in POS Solutions, Mobile Hardware Architecture, and Reverse Engineering.",
+  targetJobId: "it-technician",
+  targetCompany: "",
   phone: "+27798889298",
   email: "MRNDIVHO@GMAIL.COM",
   location: "Makhado, Limpopo, South Africa",
