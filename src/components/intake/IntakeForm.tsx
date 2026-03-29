@@ -3,6 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cvFormSchema, type CVFormData } from "@/types/cv";
 import { demoData } from "@/lib/demoData";
+import { demoData2 } from "@/lib/demoData2";
 import { useCVContext } from "@/contexts/CVContext";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -183,9 +184,9 @@ export default function IntakeForm() {
     setCvData(data);
   };
 
-  const autofill = () => {
-    reset(demoData);
-    setShowIdentity(true);
+  const autofill = (data: CVFormData) => {
+    reset(data);
+    setShowIdentity(!!data.showIdentity);
   };
 
   const clearDraft = () => {
@@ -233,8 +234,11 @@ export default function IntakeForm() {
       statusText={`${done.length}/${SECTIONS.length} sections completed${savedDraft ? " • Draft restored" : ""}`}
       actions={
         <div className="flex items-center gap-1">
-          <Button type="button" variant="ghost" size="sm" onClick={autofill} className="h-7 text-[11px] text-secondary-foreground/80 gap-1 px-2 hover:bg-secondary-foreground/10">
-            <Zap className="w-3 h-3" /> Demo
+          <Button type="button" variant="ghost" size="sm" onClick={() => autofill(demoData)} className="h-7 text-[11px] text-secondary-foreground/80 gap-1 px-2 hover:bg-secondary-foreground/10">
+            <Zap className="w-3 h-3" /> Demo 1
+          </Button>
+          <Button type="button" variant="ghost" size="sm" onClick={() => autofill(demoData2)} className="h-7 text-[11px] text-secondary-foreground/80 gap-1 px-2 hover:bg-secondary-foreground/10">
+            <Zap className="w-3 h-3" /> Demo 2
           </Button>
           <Button type="button" variant="ghost" size="sm" onClick={clearDraft} className="h-7 text-[11px] text-secondary-foreground/80 gap-1 px-2 hover:bg-secondary-foreground/10">
             <Trash2 className="w-3 h-3" /> Clear
